@@ -23,6 +23,7 @@
   "homepage": "https://github.com/madoos/haskell-validation-curse-js-implementation#readme",
   "dependencies": {
     "daggy": "^1.4.0",
+    "fantasy-land": "^4.0.1",
     "ramda": "^0.26.1"
   }
 }

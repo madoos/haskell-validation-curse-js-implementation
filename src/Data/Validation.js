@@ -1,5 +1,5 @@
 const { taggedSum } = require('daggy')
-const { map, ap, chain, of } = require('fantasy-land')
+const FL = require('fantasy-land')
 const { assign } = Object
 const { concat } = require('ramda')
 
@@ -9,7 +9,7 @@ const Validation = taggedSum('Validation', {
 })
 
 assign(Validation, {
-    [of](x){
+    [FL.of](x){
         return Validation.Success(x)
     },
 
@@ -26,14 +26,14 @@ assign(Validation.prototype, {
         })
     },
 
-    [map](f){
+    [FL.map](f){
         return this.cata({
             Success: (value) => Validation.Success(f(value)),
             Failure: () => this
         })
     },
 
-    [ap](validation){
+    [FL.ap](validation){
         return this.cata({
             Success: (x) => {
                 return validation.cata({
@@ -43,8 +43,25 @@ assign(Validation.prototype, {
             },
             Failure: (error) => {
                 return validation.cata({
-                    Success: (f) => this,
+                    Success: () => this,
                     Failure: (otherError) => Validation.Failure(concat(otherError, error))
+                })
+            }
+        })
+    },
+
+    [FL.concat](validation) {
+        return this.cata({
+            Success: (x) => {
+                return validation.cata({
+                    Success: () => this,
+                    Failure: (error) => Validation.Failure(error)
+                })
+            },
+            Failure: (error) => {
+                return validation.cata({
+                    Success: () => Validation.Failure(error),
+                    Failure: (otherError) => Validation.Failure(concat(error, otherError))
                 })
             }
         })
